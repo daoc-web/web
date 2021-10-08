@@ -1,29 +1,28 @@
 # Aplicaciones Web
 
-## Introducción
+Una aplicación web es un componente de software que se encuentra alojado en un servidor web, que será eventualmente pedido por un cliente web y que podrá ejecutarse parcialmente en el lado del servidor y parcialmente en el lado del cliente. Permite a un usuario interactuar con un sistema remoto sin necesidad de descargar e instalar una aplicación completa sino solo los elementos que va necesitando para su trabajo específico, gracias al uso de un navegador web.
 
+## Definiciones y términos
 
-### Definiciones y términos
-
-#### Internet
+### Internet
 
 La Internet (EL Internet???) es una red de redes. Se basa en la idea de interconectar múltiples redes independientes, las cuales pueden tener arquitecturas y diseños muy variados, pero responden a ciertos principios fundamentales que permiten su interacción. 
 
 Tal vez el más fundamental de estos principios actualmente es la interconexión mediante "packet switching", que en general se implementa mediante el protocolo IP (Internet Protocol).
 
-#### World Wide Web
+### World Wide Web
 
 Ó WWW, ó Web simplemente, representa la colección de aplicaciones, documentos y recursos en general, a los que se puede acceder mediante la Internet.
 
 Para identificar un recurso de forma única se utiliza una URI (Uniform Resource Identifier). Con esta URI se puede pedir el recurso mediante el protocolo HTTP (Hypertext Transfer Protocol) o HTTPS (HTTP Seguro).
 
-#### Recursos Web
+### Recursos Web
 
 Los recursos, como ya dijimos, pueden ser cualquier cosa susceptible de transferirse, o de transferir una representación del mismo, por la internet, y suelen estar agrupados en páginas y sitios web. 
 
 Los sitios web presentan como su interfaz de navegación una colección de páginas web. Una página web presenta información, que puede provenir de varios recursos, y presenta hyperlinks atados a URIs; al dar click en un hyperlink, se pide el recurso ligado a la URI, que muchas veces suele ser otra página web (la cual a su vez agrupa recursos y así...).
 
-#### Página Web
+### Página Web
 
 Lo que normalmente se conoce como una página web es un archivo Html o HyperText Markup Language. Html es un lenguaje de marcado, familia del XML (eXtensible Markup Language), derivados ambos del SGML (Standard Generalized Markup Language).
 
@@ -31,7 +30,7 @@ El Html permite definir la estructura y contenido de una página web, y si bien 
 
 Adicionalmente, una página web también consta de imágenes y otros elementos que se referencian en el archivo html, y que son recuperados automáticamente por el navegador para completar la presentación de la página para el usuario.
 
-#### HTTP
+### HTTP
 
 El Hypertext Transfer Protocol es el protocolo universal de comunicación en la Web. Es un protocolo de aplicación, es decir permite a una aplicación comunicarse con otra aplicación en la Internet.
 
@@ -43,7 +42,7 @@ El protocolo HTTP funciona en modo petición-respuesta (request-response). El cl
 
 Inicialmente (HTTP/1.0) era necesario establecer una nueva conexión por cada transacción. Sin embargo, a partir de HTTP/1.1 ya es posible efectuar varias transacciones a través de la misma conexión TCP.
 
-#### Servidor Web
+### Servidor Web
 
 Es una aplicación que implementa el protocolo HTTP para proporcionar recursos Web a las aplicaciones cliente.
 
@@ -53,7 +52,7 @@ En un servidor se encuentran cargados los recursos que serán entregados a los c
 
 Hay una multitud de servidores web disponibles. Los más tradicionales son Apache Web Server e Internet Information Server; sin embargo con el tiempo ha aparecido una gran variedad, como por ejemplo Tomcat o Node.js.
 
-#### Cliente Web
+### Cliente Web
 
 Es una aplicación que implementa el protocolo HTTP para solicitar recursos Web a las aplicaciones servidor.
 
@@ -65,17 +64,17 @@ Al pedir una página web se suelen encadenar muchas transacciones hasta recupera
 
 Un browser tiene como principal responsabilidad permitir la interacción del usuario con la aplicación, y para ello una de sus tareas es formatear la información recibida, de manera que se ajuste a la descripción de la página web, para que el usuario la vea "armoniosamente" (esto, claro, depende de la página web, la cual lleva en sí las definiciones. Si la página web es "fea", se verá "fea" en el browser). Hay browsers más sencillos, como curl, que es un browser de línea de comandos que solamente recupera el recurso y nada más.
 
-#### Full Stack: Frontend y Backend
+### Full Stack: Frontend y Backend
 
 El desarrollo de una aplicación web suele dividirse en frontend y backend, pero aclarando que no son independientes el uno del otro, y ambos deben trabajar al unísono e integrados en un todo coherente. La división sobre todo se hace por la gran complejidad alcanzada por las aplicaciones web, que muchas veces obliga a dividir las actividades y el equipo de desarrolladores en estos dos frentes. En la práctica, realmente, son inseparables, y para desarrollar el frontend será necesario conocer el backend y viceversa.
 
-##### Frontend
+#### Frontend
 
 El frontend o lado del cliente se preocupa principalmente en producir una interfaz de usuario atractiva, ergonómica y fácil de usar. Las tecnologías involucradas en el frontend son principalmente Html, Css y JavaScript, pero actualmente se suelen utilizar toolkits, librerías o frameworks que facilitan la integración de las mismas; entre los más empleados podemos nombrar Bootstrap, React y Angular.
 
 Uno de los principales problemas con los que debe enfrentar el desarrollo de frontend es el del correcto renderizado de las páginas web.  Esto requiere en gran medida buenas nociones de diseño gráfico, y también tratar con la enorme variedad de dispositivos, navegadores y configuraciones en las que deberán desplegarse las páginas creadas.
 
-##### Backend
+#### Backend
 
 El backend o lado del servidor puede decirse que forma la columna vertebral de la aplicación. Se ocupa de proporcionar los servicios que brindará la aplicación, relacionados con el manejo de la información, el acceso a datos y su correcto procesamiento. Aquí se reciben y procesan las peticiones del usuario se interactúa con la capa o lógica del negocio, con las bases de datos y se construye la respuesta.
 
