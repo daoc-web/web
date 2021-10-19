@@ -76,4 +76,19 @@ Ya hemos creado nuestra primera aplicación web dinámica!
 
 Para poder recuperar y revisar contenido web necesitamos algún navegador o browser. Cualquiera sirve en principio: Edge, Chrome, Firefox, Safari,... Los navegadores actualmente tratan de mantener ciertos estándares para brindar compatibilidad, y en general tienden a usar los mismos motores de renderizado o "web-engine", principalmente: WebKit (Apple), Blink (Google) y Gecko (Mozilla).
 
-Uno de los componentes que más nos interesará como desarrolladores, y que al menos los principales browsers en sistemas de escritorio presentan con opciones muy similares, son justamente las herramientas para desarrolladores o Developer tools, que podemos presentar simplemente dando click derecho en la página desplegada y seleccionando "Inspect" (o Inspect element). Aquí podremos ver e incluso modificar los elementos de la página web: html, css, javascript, y muchas otras cosas, como por ejemplo las transacciones http.
+Uno de los componentes que más nos interesará como desarrolladores, y que al menos los principales browsers en sistemas de escritorio presentan con opciones muy similares, son justamente las herramientas para desarrolladores o Developer tools, que podemos presentar simplemente dando click derecho en la página desplegada y seleccionando "Inspect" (o con Ctr+Shift+J en Edge). Aquí podremos ver e incluso modificar los elementos de la página web: html, css, javascript, y también podremos hacer muchas otras cosas, como por ejemplo revisar las transacciones http.
+
+Revisemos nuestra primera transacción Http. Abra su navegador, abra las Developer tools, y ponga en la línea de direcciones la URL: `http://daoc.ml/index.html`. En el panel de las Dev.Tools seleccione, arriba, "Network", y abajo seleccione "index.html". A la derecha seleccione "Headers" y ahí podrá ver los encabezados de la transacción Http. Primero verá información general, y hacia abajo verá infromación específica de la Response y la Request.
+
+En la sección Request verá la petición completa realizada por el browser (oprima "View source" si prefiere), que aquí presentamos resumida, ya que hay muchos encabezados:
+
+```
+GET /index.html HTTP/1.1
+Host: daoc.ml
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36 Edg/94.0.992.50
+Accept: text/html,application/xhtml+xml,
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9,es;q=0.8
+...
+```
