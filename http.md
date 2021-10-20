@@ -136,6 +136,35 @@ Content-Type: text/html
 
 Luego de cargar el html, el navegador analizará si hay más recursos que solicitar para completar el pedido, y por cada uno de ellos se hará otra transacción. En este caso se pide también la imagen "ubuntu-logo.png", para la cual también puede revisar en las Dev.Tools los encabezados de su petición-respuesta.
 
+## Estructura sintáctica de una URI típica
+
+Los recursos se referencian mediante una URI (Uniform Resource Identifier), las cuales deben guardar una cierta estructura de base:
+
+```
+<scheme>://<host>:<port>/<path>?query>#<frag>
+```
+
+- El *scheme* o esquema, es el protocolo, en este caso http ó https
+- *host*, es el nombre o la dirección ip del servidor
+- *port*, se refiere al puerto de escucha del servidor. Cuando no se incluye se asume un valor por defecto (en este caso 80 ó 443)
+- *path*, es la ubicación del recurso dentro del servidor
+- *query*, son posibles parámetros o atributos que se pasan al servidor como pares clave-valor. Permiten dar información adicional sobre la petición,cuando el recurso es una aplicación (?clave1=valor1&clave2=valor2…). Note el símbolo '?' que divide el path de la query
+- *frag*(fragmento o ancla), es la ubicación de una parte interna al recurso (#cap2). Se suele indicar la id de un elemento interno al recurso y generalmente se procesa en el navegador, para que dicho elemento sea visible en la pantalla
+
+Una URI solo puede utilizar un cierto grupo de caracteres. Los caracteres válidos son algunos de los pertenecientes al código US-ACII en 7 bits, es decir los códigos 0 al 127: `A-Z, a-z, 0-9, -, ., _, ~, :, /, ?, #, [, ], @, !, $, &, ', (, ), *, +, ,, ;, %, and =.`.
+
+Más aún, hay un cierto subset de caracteres dentro de este grupo que están reservados y no pueden usarse libremente puesto que tienen un significado especial: `! * ' ( ) ; : @ & = + $ , / ? % # [ ]`
+
+En ocasiones es necesario utilizar estos caracteres reservados, en algún parámetro por ejemplo, para lo cual se puede utilizar URL Encoding, que es una forma de reemplazar cualquier caracter. Esto se hace poniendo el símbol de porcentaje '%' seguido del código numérico del caracter en la tabla ASCII. Algunos ejemplos:
+
+```
+%20 -> espacio
+%3D -> =
+%25 -> %
+%3F -> ?
+...
+```
+
 ## Estructura de los mensajes HTTP
 
 Los mensajes http pueden ser una petición o una respuesta, y ambos deben guardar un formato específico para poder ser procesados apropiadamente.
@@ -178,3 +207,92 @@ La respuesta debe configurarse de la siguiente manera:
 
 > Luego de los encabezados debe ir una línea en blanco, y finalmente el cuerpo del mensaje, que también es opcional y sin un formato en particular. Lo más común, pero, es que en una respuesta haya un cuerpo del mensaje con la información solicitada (la página html, la imagen, ...)
 
+## Métodos HTTP
+
+En una petición el primer elemento que se idica es el método http, el cual indica el tipo de acción que se pide al servidor que ejecute. Hay varios métodos, pero al trabajar con html los dos más usados son GET y POST (también por que son los únicos válidos en un formulario html) y de manera más amplia los más utilizados son GET, POST,PUT y DELETE, que permiten definir operaciones tipo CRUD sobre los recursos. Cada método tiene su significado específico:
+
+- GET: Solicita un recurso, lo recupera del servidor
+- POST: Permite crear un nuevo recurso con la información contenida en el cuerpo del mensaje. El nuevo recurso generalmente es o forma parte de aquel definido en la URI
+- PUT: Permite modificar el recurso definido en la URI, con la información en el cuerpo del mensaje
+- DELETE: Elimina el recurso definido en la URI
+- Otros métodos en los que no nos detendremos son: OPTIONS, HEAD, TRACE, CONNECT y PATCH (puede revisar https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
+
+## Códigos de estado
+
+Como vimos, una respuesta lleva incluido un código que nos indica de cierta manera qué pasó al  tratar de resolver la petición, si se pudo hacer lo solicitado, si hubo algún tipo de error, si es necesario ir a buscar el recurso en otro lado, entre otras posibilidades.
+
+Los códigos de estado son un número de tres cifras, y se agrupan en familias de códigos:
+
+- 1xx (100 - 199): respuestas meramente informativas, ej:
+    - 101 Switching Protocol
+- 2xx (200 - 299): peticiones que se pudieron cumplir correctamente, ej:
+    - 200 OK
+- 3xx (300 - 399): mensajes de redirección
+    - 302 Moved Permanently
+- 4xx (400 - 499): errores en el lado del cliente, ej:
+    - 404 Not Found
+- 5xx (500 - 599): errores en el lado del servidor
+    - 500 Internal Server Error
+
+## Algunos encabezados comunes
+
+Los encabezados pueden ir tanto en la petición como en la respuesta y permiten ampliar su significado o definirla de manera más precisa. Hay una gran variedad, pero algunos ejemplos típicos que se suelen encontrar pueden ser:
+
+- Accept: \*/\*
+    - Va en la petición y le dice al servidor el tipo de contenido que se prefiere recibir y procesar
+        - Accept: image/jpg
+        - Accept: application/json
+- Content-Type: text/html; charset=iso-latin-1
+    - Se refiere al tipo de contenido que se envía (petición o respuesta)
+        - Content-Type: text/plain
+        - Content-Type: application/octet-stream
+- Set-Cookie: animal=perro; raza=pug
+    - Va en la respuesta. El servidor pide al cliente que guarde los valores indicados
+- Cookie: animal=perro; raza=pug
+    - Va en la petición. El cliente envía los valores guardados al servidor
+- Authorization: Basic QWxhZGVuIHNlc2FtZQ==
+    - Envía credenciales del usuario para autenticarse en el servidor
+- WWW-Authenticate: Basic realm=“rrhh“
+    - Pide al cliente que se identifique
+        - Generalmente se acompaña de un código 401
+- Location: http://www.example.org/index.php
+    - Redirecciona al cliente a otro recurso
+        - Generalmente se acompaña de un código 302
+
+## Tipos de los recursos (MIME)
+
+Los recursos web pueden ser de una gran variedad, y suele ser necesario especificar el tipo del recurso que se desea recibir o que se está enviando.
+
+Para especificar los tipos se usa el estándar MIME: Multipurpose Internet Mail Extensions. MIME utiliza un formato `tipo/subtipo`. El tipo es una categoría general, por ejemplo imagen, y el subtipo indica con exactitud la naturaleza del dato, por ejemplo jpeg: `image/jpeg`.
+
+Si es necesario se puede añadir al tipo un parámetro con detalles adicionales:
+`tipo/subtipo;parameter=value`, por ejemplo `text/plain;charset=UTF-8`.
+
+Los tipos se encuentran registrados en la Internet Assigned Numbers Authority, IANA (https://www.iana.org/assignments/media-types/media-types.xhtml), donde puede consultar la lista.
+
+> Tipos muy comunes son text/html, application/pdf, image/png, application/json, o application/octet-stream (genérico para cualquier contenido binario).
+
+## Base64
+
+Por Http se puede enviar cualqueir tipo de información, en cualquier encodaje, texto o binario. Sin embargo, algunos formatos, sobretodo binarios, pueden dar problemas en la práctica si son mal interpretados (algunos caracteres pueden cerrar la conexión, por ejemplo).
+
+Para evitar cualquier problema de interpretación, se suele convertir algunos mensajes, sobretodo binarios, a un formato llamado Base64, que no es más que recodificar los bytes en 6 bits, en lugar de ocho. En 6 bits se puede representar hasta 64 caracteres, razón del nombre del formato.
+
+Existe una tabla que para cada valor (en decimal) entre 0 y 63, tiene atado un caracter, esta es la tabla Base64.
+
+En todos los lenguajes de programación hay funciones que permiten efectuar estas conversiones, sin embargo, para clarificar, un pequeño ejemplo.
+
+Supongamos que queremos enviar el texto "hola" en Base64:
+
+```
+hola
+h       |o       |l       |a
+    en la tabla ASCII:
+01101000|01101111|01101100|01100001
+011010|000110|111101|101100|011000|010000
+    en la tabla Base64:
+a     |G     |9     |s     |Y     |Q     |==
+aG9sYQ==
+```
+
+> Los símbolos de igual (=) al final son caracteres de relleno o padding que completan la cadena para facilitar la conversión de Base64 al valor original
