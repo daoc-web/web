@@ -78,7 +78,9 @@ Para poder recuperar y revisar contenido web necesitamos algún navegador o brow
 
 Uno de los componentes que más nos interesará como desarrolladores, y que al menos los principales browsers en sistemas de escritorio presentan con opciones muy similares, son justamente las herramientas para desarrolladores o Developer tools, que podemos presentar simplemente dando click derecho en la página desplegada y seleccionando "Inspect" (o con Ctr+Shift+J en Edge). Aquí podremos ver e incluso modificar los elementos de la página web: html, css, javascript, y también podremos hacer muchas otras cosas, como por ejemplo revisar las transacciones http.
 
-Revisemos nuestra primera transacción Http. Abra su navegador, abra las Developer tools, y ponga en la línea de direcciones la URL: `http://daoc.ml/index.html`. En el panel de las Dev.Tools seleccione, arriba, "Network", y abajo seleccione "index.html". A la derecha seleccione "Headers" y ahí podrá ver los encabezados de la transacción Http. Primero verá información general, y hacia abajo verá infromación específica de la Response y la Request.
+Revisemos nuestra primera transacción Http. Abra su navegador, abra las Developer tools, y ponga en la línea de direcciones la URL: `http://daoc.ml/index.html`. En el panel de las Dev.Tools seleccione, arriba, "Network", y abajo seleccione "index.html". A la derecha seleccione "Headers" y ahí podrá ver los encabezados de la transacción Http. Primero verá información general, y hacia abajo verá información específica de la Response y la Request:
+
+![img01.png](images/img01.png)
 
 En la sección Request verá la petición completa realizada por el browser (oprima "View source" si prefiere), que aquí presentamos resumida, ya que hay muchos encabezados:
 
@@ -92,3 +94,87 @@ Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9,es;q=0.8
 ...
 ```
+
+> La primera línea en una petición es probablemente la más relevante. Ahí se indica el método http (GET), el recurso solicitado (/index.html) y la versión del protocolo (HTTP/1.1). El resto de líneas corresponden a encabezados, uno por línea, que definen más precisamente las condiciones y características de la petición.
+
+Como resultado de la petición, el servidor emitirá una respuesta, que generalmente contendrá el recurso solicitado (si la petición fue adecuada,claro está). En el mismo sector de headers en las Dev.Tools puede ver los encabezados de la respuesta:
+
+```
+HTTP/1.1 200 OK
+Date: Tue, 19 Oct 2021 17:44:53 GMT
+Server: Apache/2.4.29 (Ubuntu)
+Last-Modified: Thu, 31 Oct 2019 20:30:12 GMT
+ETag: "2aa6-5963ab767b796-gzip"
+Accept-Ranges: bytes
+Vary: Accept-Encoding
+Content-Encoding: gzip
+Content-Length: 3138
+Keep-Alive: timeout=5, max=100
+Connection: Keep-Alive
+Content-Type: text/html
+
+<Cuerpo del mensaje>
+```
+
+> También la primera línea de la respuesta es muy relevante, ya que indica sobretodo si se pudo o no hacer lo solicitado. Primero va la versión del protocolo (HTTP/1.1), luego el código de la respuesta, (200) y luego una brevísima descripción del código (OK). En este caso este código indica que sí se pudo hacer lo solicitado, en este caso enviar el recurso "index.html". Las siguientes líneas contienen los encabezados varios que envía el servidor describiendo la respuesta, y luego de una línea en blanco, irá el cuerpo de la respuesta, es decir el recurso solicitado, en este caso el html, que presentamos una pequeña parte del inicio a continuación:
+
+```html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!--
+    Modified from the Debian original for Ubuntu
+    Last updated: 2016-11-16
+    See: https://launchpad.net/bugs/1288690
+  -->
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Apache2 Ubuntu Default Page: It works</title>
+    ...
+```
+
+> Este html será procesado por el navegador para presentarlo formateado en la pantalla principal.
+
+Luego de cargar el html, el navegador analizará si hay más recursos que solicitar para completar el pedido, y por cada uno de ellos se hará otra transacción. En este caso se pide también la imagen "ubuntu-logo.png", para la cual también puede revisar en las Dev.Tools los encabezados de su petición-respuesta.
+
+## Estructura de los mensajes HTTP
+
+Los mensajes http pueden ser una petición o una respuesta, y ambos deben guardar un formato específico para poder ser procesados apropiadamente.
+
+Una petición debe configurarse de la siguiente manera:
+
+```
+<método> <recurso> <versión>
+<encabezados>*
+
+<cuerpo del mensaje>?
+```
+
+> El método indica básicamente qué queremos hacer, y hay varias alternativas GET y POST siendo las más utilziadas.
+
+> El recurso indica aquello que queremos manipular en el servidor (recuperar, modificar, ...)
+
+> La versión indica la versión del protocolo HTTP con la que está estructurado el mensaje y con la que se prefiere trabajar: 1, 1.1, 2, ...
+
+> Los encabezados pueden ser ninguno o muchos, uno por cada línea, y deben tener también un formato específico: `<nombre>: <valor>`. El nombre del encabezado, seguido de dos puntos, seguido de una  cadena de texto con el valor para dicho encabezado.
+
+> Luego de los encabezados debe ir una línea en blanco, y finalmente el cuerpo del mensaje, que es opcional, y que no tiene ningún formato en particular (se puede enviar prácticamente cualquier cosa). De hecho, que haya o no cuerpo del mensaje depende mucho del método http usado. Por ejemplo GET nunca lleva cuerpo y POST casi siempre lo lleva.
+
+La respuesta debe configurarse de la siguiente manera:
+
+```
+<versión> <código> <descripción>
+<encabezados>*
+
+<cuerpo del mensaje>?
+```
+
+> La versión indica la versión del protocolo HTTP con la que se responde (generalmente la misma de la petición)
+
+> El código indica el estado de la petición, se hizo, no se hizo, qué pasó?... Hay muchos códigos posibles, pero por ejemplo, 200 indica que sí se cumplió la solicitud y 404 que no se encontró lo solicitado
+
+> La descripción está atada al código, y es un pequeño texto descriptivo, por ejemplo para 200 es "OK" y para 404 es "Not Found"
+
+> Igual que para la petición, puede haber una serie de encabezados
+
+> Luego de los encabezados debe ir una línea en blanco, y finalmente el cuerpo del mensaje, que también es opcional y sin un formato en particular. Lo más común, pero, es que en una respuesta haya un cuerpo del mensaje con la información solicitada (la página html, la imagen, ...)
+
