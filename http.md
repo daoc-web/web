@@ -279,7 +279,7 @@ Por Http se puede enviar cualqueir tipo de información, en cualquier encodaje, 
 
 Para evitar cualquier problema de interpretación, se suele convertir algunos mensajes, sobretodo binarios, a un formato llamado Base64, que no es más que recodificar los bytes en 6 bits, en lugar de ocho. En 6 bits se puede representar hasta 64 caracteres, razón del nombre del formato.
 
-Primero se toma el valor binario de cada caracter, según la tabla [ASCII](Ascii.htm), se reempaqueta en grupos de 6 bits, y luego se ve en la tabla [Base64](Base64.htm), donde para cada valor (en decimal) entre 0 y 63, tiene atado un caracter, con los que se construye la codificación en Base64.
+Primero se toma el valor binario de cada caracter, según la tabla [ASCII](https://htmlpreview.github.io/?https://github.com/dordonez-ute-apweb/web/blob/main/Ascii.htm), se reempaqueta en grupos de 6 bits, y luego se ve en la tabla [Base64](https://htmlpreview.github.io/?https://github.com/dordonez-ute-apweb/web/blob/main/Base64.htm), donde para cada valor (en decimal) entre 0 y 63, tiene atado un caracter, con los que se construye la codificación en Base64.
 
 En todos los lenguajes de programación hay funciones que permiten efectuar estas conversiones, sin embargo, para clarificar, un pequeño ejemplo.
 
