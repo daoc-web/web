@@ -250,12 +250,13 @@ Los encabezados pueden ir tanto en la petición como en la respuesta y permiten 
     - Va en la respuesta. El servidor pide al cliente que guarde los valores indicados
 - Cookie: animal=perro; raza=pug
     - Va en la petición. El cliente envía los valores guardados al servidor
-- Authorization: Basic QWxhZGVuIHNlc2FtZQ==
-    - Envía credenciales del usuario para autenticarse en el servidor
-- WWW-Authenticate: Basic realm=“rrhh“
+- Authorization: Basic dXN1YXJpbzpwYXNzd29yZA==
+    - Envía las credenciales del usuario para autenticarse en el servidor
+    - Las credenciales están codificadas en Base64, y contienen "usuario:password"
+- WWW-Authenticate: Basic
     - Pide al cliente que se identifique
         - Generalmente se acompaña de un código 401
-- Location: http://www.example.org/index.php
+- Location: http<span>://www<span>.example.org/index.php
     - Redirecciona al cliente a otro recurso
         - Generalmente se acompaña de un código 302
 
@@ -278,21 +279,72 @@ Por Http se puede enviar cualqueir tipo de información, en cualquier encodaje, 
 
 Para evitar cualquier problema de interpretación, se suele convertir algunos mensajes, sobretodo binarios, a un formato llamado Base64, que no es más que recodificar los bytes en 6 bits, en lugar de ocho. En 6 bits se puede representar hasta 64 caracteres, razón del nombre del formato.
 
-Existe una tabla que para cada valor (en decimal) entre 0 y 63, tiene atado un caracter, esta es la tabla Base64.
+Primero se toma el valor binario de cada caracter, según la tabla [ASCII](Ascii.htm), se reempaqueta en grupos de 6 bits, y luego se ve en la tabla [Base64](Base64.htm), donde para cada valor (en decimal) entre 0 y 63, tiene atado un caracter, con los que se construye la codificación en Base64.
 
 En todos los lenguajes de programación hay funciones que permiten efectuar estas conversiones, sin embargo, para clarificar, un pequeño ejemplo.
 
-Supongamos que queremos enviar el texto "hola" en Base64:
+Supongamos que queremos enviar el texto original Ascii "hola", codificado en Base64:
 
 ```
 hola
 h       |o       |l       |a
     en la tabla ASCII:
 01101000|01101111|01101100|01100001
+    reempaquetado en 6 bits:
 011010|000110|111101|101100|011000|010000
     en la tabla Base64:
-a     |G     |9     |s     |Y     |Q     |==
+a     |G     |9     |s     |Y     |Q     
 aG9sYQ==
 ```
 
-> Los símbolos de igual (=) al final son caracteres de relleno o padding que completan la cadena para facilitar la conversión de Base64 al valor original
+> Los símbolos de igual (=) al final son caracteres de relleno o padding que completan la cadena. Para facilitar la conversión de Base64 al valor original, la cadena de caracteres en Base64 debe tener un múltiplo de 4 caracteres, si faltan en el útimo bloque se completa con el padding.
+
+## Un poco de historia de HTTP
+
+HTTP nace con la Web. Todo inicia con una propuesta escrita por Tim Berners-Lee, del CERN, en 1989. Esta propuesta da lugar a html y http, así como al primer servidor y al primer navegador. En 1991 ya había tráfico web fuera del CERN. A continuación destacaremos ciertos elementos relevantes en cada versión (pero la lista es muy grande!).
+
+### HTTP/0.9
+
+La primera versión era sumamente simple. La petición consistía solo de la instrucción GET seguida del path al recurso, y la respuesta era directamente el recurso, sin ningún tipo de encabezados; todo era puro html.
+
+### HTTP/1.0
+
+Aparece en 1997. Se añade la versión del protocolo a la petición y se añaden ya los encabezados. Era posible ya enviar otro tipo de documentos que no fueran html, y la respuesta ya incluía el código de estado.
+
+Era necesario hacer una conexión TCP nueva por cada transacción (si el html referenciaba 4 imágenes, se requerían 5 conexiones en total).
+
+### HTTP/1.1
+
+Se publica apenas pocos meses luego de la versión 1.0. Ya era posible reutilizar una conexión para varias transacciones y además se podía hacer pipelining, es decir enviar varias peticiones al hilo sin tener que esperar por la respuesta. Se añadió el encabezado Host, que permitía que una misma IP (servidor) aloje varios dominios.
+
+Mientras se seguía evolucionando la versión 1.1, aparecieron HTTPS y las APIs REST para servicios web.
+
+### HTTP/2
+
+Aparece oficialmente en 2015. Es un protocolo binario, ya no en modo texto. Es multiplexado, lo que permite que las respuestas a varias peticiones (pipelining) puedan ser recibidas fuera de orden, es decir evita el bloqueo [head-of-line](https://en.wikipedia.org/wiki/Head-of-line_blocking) sobre HTTP (aunque este subsiste a nivel de TCP).
+
+Implementa también la compresión de los encabezados y permite usar "push" para que el servidor envíe información por adelantado (antes de la petición) al cliente.
+
+### HTTP/3
+
+Todavía es experimental, aunque ya hay ciertos servidores y clientes que lo implementan. Tal vez el mayor cambio es que ya no utiliza TCP, sino un protocolo basado en UDP llamado QUIC. Esto ya evita el bloqueo [head-of-line](https://en.wikipedia.org/wiki/Head-of-line_blocking) sobre TCP, y también se supone que lo hace más rápido.
+
+## HTTPS
+
+Http envía la información en claro, sin ningún tipo de cifrado o encriptamiento, de manera que es inseguro y nada apropiado para enviar información sensible, como claves.
+
+HTTPS añade una capa de seguridad mediante el empleo de [TLS/SSL](https://es.wikipedia.org/wiki/Seguridad_de_la_capa_de_transporte), que es un mecanismo de clave pública-privada, con validación por una autoridad certificada (CA).
+
+El uso de https es transparente para las aplicaciones, es decir una aplicación web funcionará sobre http o https sin necesidad de ninguna adaptación. Lo que es necesario es que los navegadores y servidores soporten https. Todos los navegadores actuales lo hacen, y son los servidores los que deben configurarse, con un certificado, para usar https (aquí un [tutorial](https://noviello.it/es/como-instalar-lets-encrypt-para-apache-en-ubuntu-20-04-lts/)).
+
+El proceso de una conexión HTTPS es razonablemente complejo, así que vamos a presentar aquí una versión simplificada del mismo:
+
+- HTTPS usa el puerto 443 por defecto (HTTP usa el 80)
+- El cliente se conecta con el servidor e inicia el "handshake"
+- El servidor le responde enviando su certificado público (su clave pública más información de la autoridad certificadora), así como parte de la información para calcular una pre-clave
+- El cliente valida el certificado con la autoridad certificada (quien emitió el certificado)
+- Si se valida, el cliente envía al servidor otra parte de la información para la pre-clave, cifrada con la clave pública del servidor
+- El servidor descifra la información con su propia clave privada
+- Ambos calculan la clave simétrica para la sesión (con la información de la pre-clave intercambiada), que será la misma en los dos lados. Con esto termina el "handshake"
+- A partir de aquí, todos los mensajes http que se envíen mientras dure esta sesión, serán cifrados y descifrados automáticamente por la capa de seguridad, con esta clave simétrica.
+
