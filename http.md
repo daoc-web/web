@@ -329,22 +329,4 @@ Implementa también la compresión de los encabezados y permite usar "push" para
 
 Todavía es experimental, aunque ya hay ciertos servidores y clientes que lo implementan. Tal vez el mayor cambio es que ya no utiliza TCP, sino un protocolo basado en UDP llamado QUIC. Esto ya evita el bloqueo [head-of-line](https://en.wikipedia.org/wiki/Head-of-line_blocking) sobre TCP, y también se supone que lo hace más rápido.
 
-## HTTPS
-
-Http envía la información en claro, sin ningún tipo de cifrado o encriptamiento, de manera que es inseguro y nada apropiado para enviar información sensible, como claves.
-
-HTTPS añade una capa de seguridad mediante el empleo de [TLS/SSL](https://es.wikipedia.org/wiki/Seguridad_de_la_capa_de_transporte), que es un mecanismo de clave pública-privada, con validación por una autoridad certificada (CA).
-
-El uso de https es transparente para las aplicaciones, es decir una aplicación web funcionará sobre http o https sin necesidad de ninguna adaptación. Lo que es necesario es que los navegadores y servidores soporten https. Todos los navegadores actuales lo hacen, y son los servidores los que deben configurarse, con un certificado, para usar https (aquí un [tutorial](https://noviello.it/es/como-instalar-lets-encrypt-para-apache-en-ubuntu-20-04-lts/)).
-
-El proceso de una conexión HTTPS es razonablemente complejo, así que vamos a presentar aquí una versión simplificada del mismo:
-
-- HTTPS usa el puerto 443 por defecto (HTTP usa el 80)
-- El cliente se conecta con el servidor e inicia el "handshake"
-- El servidor le responde enviando su certificado público (su clave pública más información de la autoridad certificadora), así como parte de la información para calcular una pre-clave
-- El cliente valida el certificado con la autoridad certificada (quien emitió el certificado)
-- Si se valida, el cliente envía al servidor otra parte de la información para la pre-clave, cifrada con la clave pública del servidor
-- El servidor descifra la información con su propia clave privada
-- Ambos calculan la clave simétrica para la sesión (con la información de la pre-clave intercambiada), que será la misma en los dos lados. Con esto termina el "handshake"
-- A partir de aquí, todos los mensajes http que se envíen mientras dure esta sesión, serán cifrados y descifrados automáticamente por la capa de seguridad, con esta clave simétrica.
-
+Siguiente: [El protocolo HTTPS](https.md)
