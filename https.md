@@ -172,10 +172,141 @@ Enter pass phrase for CA_privkey.pem:
 
 Recapitulando un poco sobre los archivos relevantes generados y su utilidad (los nombres, claro, serán los que usted puso):
 
-- *CA_privkey.pem* y *CA_cert.pem* son la clave privada y el certificado raíz de su CA. Estos archivos le servirán solo para generar nuevos certificados autofirmados
-- *pollos_privkey.pem* y *pollos_cert.pem* son la clave privada y el certificado para su servidor. Con ellos deberá configurar HTTPS en su equipo
+- *CA_privkey.pem* es la clave privada de su CA. Este archivo le servirá solo para generar nuevos certificados
+- *CA_cert.pem* es el certificado raíz de su CA. Este archivo le servirá tanto para crear nuevos certificados autofirmados como para configurar los equipos para los que emitió un certificado (el certificado contiene la clave pública de la CA)
+- *pollos_privkey.pem* y *pollos_cert.pem* son la clave privada y el certificado para su servidor. Con ellos deberá configurar HTTPS en su equipo (además de CA_cert.pem)
 
+### Configurar un servidor con HTTPS
 
+Diferentes servidores tendrán diferentes formas de configurarse. Aquí vamos a ver cómo hacerlo con un servidor Apache, uno de los más populares.
 
-[Aquí tiene una guía para aplicaciones Java](https://github.com/daoc/TLS-certificates).
+#### Sobre un equipo con Ubuntu.
 
+En primer lugar debe estar activado el módulo SSL. Puede activarse con los siguientes comandos:
+```
+sudo a2enmod ssl
+sudo a2ensite default-ssl
+``` 
+
+Ahora efectuemos la misma configuración pero sobre un servidor Ubuntu.
+```
+sudo a2enmod ssl
+sudo a2ensite default-ssl
+sudo service apache2 restart
+sudo nano /etc/apache2/sites-enabled/default-ssl.conf
+``` 
+
+Luego, hay que poner los archivos relacionados con el certificado en ciertos subdirectorios dentro de */etc/ssl*:
+- Los certificados del servidor y de la CA, *CA_cert.pem* y *pollos_cert.pem*, dentro de */etc/ssl/certs*
+- La clave privada del servidor, *pollos_privkey.pem*, dentro de */etc/ssl/private*
+
+Es probable que deba cambiar los permisos de acceso y propietario de los archivos (verifique que sean iguales a los de los otros archivos en dichos directorios):
+```
+sudo chmod 644 /etc/ssl/certs/CA_cert.pem
+sudo chmod 644 /etc/ssl/certs/pollos_cert.pem
+sudo chmod 640 /etc/ssl/private/pollos_privkey.pem
+sudo chown root:ssl-cert /etc/ssl/private/pollos_privkey.pem
+```
+
+A continuación se debe modificar la configuración ssl para Apache. El archivo generalmente se encuentra en */etc/apache2/sites-enabled/default-ssl.conf*. Puede abrirlo con nano para editarlo:
+```
+sudo nano /etc/apache2/sites-enabled/default-ssl.conf
+```
+Busque la sección `<VirtualHost _default_:443>` y registre los tres archivos del certificado, buscando, descomentando si necesario y actualizando el path a los archivos:
+
+```apache
+SSLCertificateFile /etc/ssl/certs/pollos_cert.pem
+SSLCertificateKeyFile /etc/ssl/private/pollos_privkey.pem
+SSLCertificateChainFile /etc/ssl/certs/CA_cert.pem
+```
+
+Finalmente se debe reiniciar el servidor Apache:
+
+```
+sudo service apache2 restart
+```
+
+La configuración de su archivo *ssl.conf* debería ser similar a esto (solo se presenta lo relevante):
+
+```apache
+...
+<VirtualHost _default_:443>
+...
+SSLEngine on
+...
+SSLCertificateFile /etc/ssl/certs/pollos_cert.pem
+SSLCertificateKeyFile /etc/ssl/private/pollos_privkey.pem
+SSLCertificateChainFile /etc/ssl/certs/CA_cert.pem
+...
+</VirtualHost>
+```
+
+Si no hubieron problemas, puede probar a conectarse con un browser: https://pollos.com
+> Recuerde que su certificado es autofirmado, así que el browser le va a advertir de ello con un mensaje similar a este:
+>```
+>Your connection isn't private
+>Attackers might be trying to steal your information from pollos.com (for example, passwords, messages, or credit cards).
+>NET::ERR_CERT_AUTHORITY_INVALID
+>```
+>De click en el botón **Advanced** y seleccione **Continue to pollos.com (unsafe)**
+>Esto va a suceder cada vez que abra el browser e intente conectarse a su sitio. Más adelante veremos cómo resolver esto de manera permanente
+
+#### Sobre un equipo con CentOS.
+
+Hay muchas similitudes con lo visto para Ubuntu.
+
+En primer lugar debe estar activado el módulo SSL. Puede activarse con el siguiente comando:
+```
+sudo yum install mod_ssl
+``` 
+
+Luego, hay que poner los archivos relacionados con el certificado en un directorio protegido, como por ejemplo */etc/ssl/certs*. Copie entonces en dicho directorio: CA_cert.pem, pollos_privkey.pem y pollos_cert.pem.
+
+A continuación se debe modificar la configuración ssl para Apache. El archivo generalmente se encuentra en */etc/httpd/conf.d/ssl.conf*. Puede abrirlo con nano para editarlo:
+
+```
+sudo nano /etc/httpd/conf.d/ssl.conf
+```
+Busque la sección `<VirtualHost _default_:443>` y verifique que estén descomentadas y con los valores adecuados para su servidor:
+
+```apache
+DocumentRoot "/var/www/html"
+ServerName pollos.com:443
+```
+
+Ahora registre los tres archivos del certificado, buscando, descomentando si necesario y actualizando el path a los archivos:
+
+```apache
+SSLCertificateFile /etc/ssl/certs/pollos_cert.pem
+SSLCertificateKeyFile /etc/ssl/certs/pollos_privkey.pem
+SSLCertificateChainFile /etc/ssl/certs/CA_cert.pem
+```
+
+Finalmente se debe reiniciar el servidor Apache:
+
+```
+sudo service httpd restart
+```
+
+La configuración de su archivo *ssl.conf* debería ser similar a esto (solo se presenta lo relevante):
+
+```apache
+...
+<VirtualHost _default_:443>
+DocumentRoot "/var/www/html"
+ServerName pollos.com:443
+...
+SSLEngine on
+...
+SSLCertificateFile /etc/ssl/certs/pollos_cert.pem
+SSLCertificateKeyFile /etc/ssl/certs/pollos_privkey.pem
+SSLCertificateChainFile /etc/ssl/certs/CA_cert.pem
+...
+</VirtualHost>
+```
+
+Ahora puede probar con su browser, con las mismas consideraciones vistas en la confguración para Ubuntu.
+
+### Y otros sistemas?
+
+Si desea configurar TLS/SSL en una aplicación Java (servidor o cliente), puede serle útil [esta guía](https://github.com/daoc/TLS-certificates).
