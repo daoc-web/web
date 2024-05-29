@@ -4,7 +4,7 @@ Una breve introducción a HTTP se presentó en la [sección anterior](README.md#
 
 Para que se pueda realizar una transacción Http entre un cliente y un servidor, el servidor debe estar activo y listo para recibir conexiones. Las conexiones se reciben sobre un puerto, y el puerto reservado para el protocolo http es el puerto 80 (se puede usar otro, pero habría que especificarlo explícitamente en la URL).
 
-Una transacción típica en Http inicia con un usuario escribiendo una URI en la barra de direcciones de su navegador, por ejemplo `http://daoc.ml/index.html`. Este evento desencadena varias acciones:
+Una transacción típica en Http inicia con un usuario escribiendo una URI en la barra de direcciones de su navegador, por ejemplo `http://fiipi.webs.vc/index.html`. Este evento desencadena varias acciones:
 
 - El navegador establece una conexión TCP con el servidor
 - El navegador realiza una petición (request) http de acuerdo a los datos de la URI
